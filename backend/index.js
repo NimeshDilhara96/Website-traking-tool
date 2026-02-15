@@ -14,11 +14,27 @@ const supabase = createClient(
 
 // Middleware
 app.use(cors({
-  origin: [
-    'https://websitetrakingtool.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:3000'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, or file://)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'https://websitetrakingtool.vercel.app',
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:3000'
+    ];
+    
+    // Allow all localhost ports for development
+    if (origin.startsWith('http://localhost:') || 
+        origin.startsWith('http://127.0.0.1:') ||
+        allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all for now (you can restrict this later)
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
