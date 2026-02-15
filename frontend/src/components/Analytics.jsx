@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { analyticsAPI } from '../services/api';
 import './Analytics.css';
 
 function Analytics({ website, onBack }) {
@@ -19,13 +20,7 @@ function Analytics({ website, onBack }) {
     setError('');
 
     try {
-      const params = new URLSearchParams();
-      if (startDate) params.append('start_date', startDate);
-      if (endDate) params.append('end_date', endDate);
-
-      const url = `http://localhost:3000/api/analytics/${website.id}${params.toString() ? '?' + params.toString() : ''}`;
-      const response = await fetch(url);
-      const data = await response.json();
+      const data = await analyticsAPI.getAnalytics(website.id, startDate, endDate);
 
       if (data.success) {
         setAnalytics(data.data);
@@ -33,6 +28,7 @@ function Analytics({ website, onBack }) {
         setError(data.error || 'Failed to fetch analytics');
       }
     } catch (err) {
+      console.error('Analytics fetch error:', err);
       setError(err.message || 'Failed to fetch analytics');
     } finally {
       setLoading(false);
