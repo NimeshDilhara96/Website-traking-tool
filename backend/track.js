@@ -44,8 +44,11 @@
   function sendTrackingData(endpoint, data) {
     console.log('📊 Tracking:', endpoint, data);
     
+    const url = `${TRACKING_SERVER}${endpoint}`;
+    debug('Sending request to:', url);
+    
     // Always use fetch for better error handling and CORS support
-    fetch(`${TRACKING_SERVER}${endpoint}`, {
+    fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,6 +57,7 @@
       keepalive: true
     })
     .then(response => {
+      debug('Response status:', response.status, response.statusText);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -64,7 +68,14 @@
       debug('Tracking successful:', result);
     })
     .catch(err => {
-      console.error('❌ Tracking error:', err);
+      console.error('❌ Tracking error:', err.message || err.toString());
+      console.error('Error details:', {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+        endpoint: endpoint,
+        url: url
+      });
       console.error('Failed to track:', endpoint, data);
     });
   }
