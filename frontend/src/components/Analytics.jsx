@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { analyticsAPI } from '../services/api';
 import './Analytics.css';
 
+// Force rebuild - Using production Render URL
 function Analytics({ website, onBack }) {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
