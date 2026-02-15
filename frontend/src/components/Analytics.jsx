@@ -48,11 +48,13 @@ function Analytics({ website, onBack }) {
     fetchAnalytics();
   };
 
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  
   const trackingCode = `<!-- Add this to your website -->
 <script>
   window.TRACKING_WEBSITE_ID = '${website.id}';
 </script>
-<script src="http://localhost:3000/track.js"></script>`;
+<script src="${API_BASE_URL}/track.js"></script>`;
 
   return (
     <div className="analytics">

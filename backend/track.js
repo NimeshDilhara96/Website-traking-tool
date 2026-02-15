@@ -2,7 +2,7 @@
   'use strict';
 
   // Configuration - Replace with your tracking server URL
-  const TRACKING_SERVER = 'http://localhost:3000';
+  const TRACKING_SERVER = 'https://website-traking-tool.onrender.com';
   const WEBSITE_ID = window.TRACKING_WEBSITE_ID || 'default';
   const CONFIG = {
     autoTrack: window.TRACKING_AUTO_TRACK !== false, // Auto-track page views
