@@ -45,7 +45,8 @@ function Analytics({ website, onBack }) {
     fetchAnalytics();
   };
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://website-traking-tool.onrender.com';
+  // Production API URL - NO FALLBACK
+  const API_BASE_URL = 'https://website-traking-tool.onrender.com';
   
   const trackingCode = `<!-- Add this to your website -->
 <script>
