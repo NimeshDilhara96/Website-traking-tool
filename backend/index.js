@@ -14,9 +14,14 @@ const supabase = createClient(
 
 // Middleware
 app.use(cors({
-  origin: '*',
+  origin: [
+    'https://websitetrakingtool.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 app.use(express.json());
 
