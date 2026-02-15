@@ -44,7 +44,7 @@ function Analytics({ website, onBack }) {
     fetchAnalytics();
   };
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://website-traking-tool.onrender.com';
   
   const trackingCode = `<!-- Add this to your website -->
 <script>
