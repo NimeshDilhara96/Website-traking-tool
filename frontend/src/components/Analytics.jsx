@@ -78,6 +78,88 @@ function Analytics({ website, onBack }) {
       .slice(0, 10);
   };
 
+  const groupByDevice = (pageviews) => {
+    const grouped = {};
+    pageviews.forEach(pv => {
+      const device = pv.device_type || 'Unknown';
+      if (!grouped[device]) {
+        grouped[device] = 0;
+      }
+      grouped[device]++;
+    });
+    return Object.entries(grouped).sort((a, b) => b[1] - a[1]);
+  };
+
+  const groupByBrowser = (pageviews) => {
+    const grouped = {};
+    pageviews.forEach(pv => {
+      const browser = pv.browser_name || 'Unknown';
+      if (!grouped[browser]) {
+        grouped[browser] = 0;
+      }
+      grouped[browser]++;
+    });
+    return Object.entries(grouped)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+  };
+
+  const groupByOS = (pageviews) => {
+    const grouped = {};
+    pageviews.forEach(pv => {
+      const os = pv.os_name || 'Unknown';
+      if (!grouped[os]) {
+        grouped[os] = 0;
+      }
+      grouped[os]++;
+    });
+    return Object.entries(grouped)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+  };
+
+  const groupByUTMSource = (pageviews) => {
+    const grouped = {};
+    pageviews.forEach(pv => {
+      if (pv.utm_source) {
+        if (!grouped[pv.utm_source]) {
+          grouped[pv.utm_source] = 0;
+        }
+        grouped[pv.utm_source]++;
+      }
+    });
+    return Object.entries(grouped)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+  };
+
+  const formatDuration = (seconds) => {
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m ${remainingSeconds}s`;
+  };
+
+  const groupByDay = (pageviews) => {
+    const grouped = {};
+    pageviews.forEach(pv => {
+      const date = new Date(pv.timestamp).toLocaleDateString();
+      if (!grouped[date]) {
+        grouped[date] = 0;
+      }
+      grouped[date]++;
+    });
+    
+    // Sort by date
+    return Object.entries(grouped)
+      .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+      .slice(-14); // Last 14 days
+  };
+
+  const getMaxValue = (data) => {
+    return Math.max(...data.map(([, count]) => count), 1);
+  };
+
   if (loading) {
     return <div className="loading">Loading analytics...</div>;
   }
@@ -156,18 +238,55 @@ function Analytics({ website, onBack }) {
               <p>Total Page Views</p>
             </div>
             <div className="stat-card">
-              <h3>{analytics.total_events || 0}</h3>
-              <p>Total Events</p>
+              <h3>{analytics.unique_visitors || 0}</h3>
+              <p>Unique Visitors</p>
             </div>
             <div className="stat-card">
-              <h3>{new Set(analytics.pageviews?.map(pv => pv.session_id) || []).size}</h3>
-              <p>Unique Sessions</p>
+              <h3>{analytics.total_sessions || 0}</h3>
+              <p>Total Sessions</p>
             </div>
             <div className="stat-card">
-              <h3>{new Set(analytics.pageviews?.map(pv => pv.url) || []).size}</h3>
-              <p>Unique Pages</p>
+              <h3>{analytics.bounce_rate || 0}%</h3>
+              <p>Bounce Rate</p>
+            </div>
+            <div className="stat-card">
+              <h3>{formatDuration(analytics.avg_session_duration || 0)}</h3>
+              <p>Avg Session Duration</p>
+            </div>
+            <div className="stat-card">
+              <h3>{analytics.pages_per_session || 0}</h3>
+              <p>Pages per Session</p>
+            </div>
+            <div className="stat-card">
+              <h3>{analytics.new_visitors || 0}</h3>
+              <p>New Visitors</p>
+            </div>
+            <div className="stat-card">
+              <h3>{analytics.returning_visitors || 0}</h3>
+              <p>Returning Visitors</p>
             </div>
           </div>
+
+          {/* Timeline Chart */}
+          {analytics.pageviews && analytics.pageviews.length > 0 && (
+            <div className="timeline-chart">
+              <h3>Page Views Over Time (Last 14 Days)</h3>
+              <div className="chart-container">
+                {groupByDay(analytics.pageviews).map(([date, count]) => {
+                  const maxCount = getMaxValue(groupByDay(analytics.pageviews));
+                  const height = (count / maxCount) * 100;
+                  return (
+                    <div key={date} className="chart-bar-wrapper">
+                      <div className="chart-bar" style={{ height: `${Math.max(height, 5)}%` }}>
+                        <span className="chart-value">{count}</span>
+                      </div>
+                      <div className="chart-label">{date.split('/').slice(0, 2).join('/')}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="analytics-details">
             <div className="analytics-section">
@@ -242,6 +361,102 @@ function Analytics({ website, onBack }) {
               )}
             </div>
 
+            <div className="analytics-section">
+              <h3>Device Types</h3>
+              {analytics.pageviews && analytics.pageviews.length > 0 ? (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Device</th>
+                      <th>Count</th>
+                      <th>%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupByDevice(analytics.pageviews).map(([device, count]) => (
+                      <tr key={device}>
+                        <td style={{ textTransform: 'capitalize' }}>{device}</td>
+                        <td>{count}</td>
+                        <td>{((count / analytics.pageviews.length) * 100).toFixed(1)}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="no-data">No device data yet</p>
+              )}
+            </div>
+
+            <div className="analytics-section">
+              <h3>Top Browsers</h3>
+              {analytics.pageviews && analytics.pageviews.length > 0 ? (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Browser</th>
+                      <th>Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupByBrowser(analytics.pageviews).map(([browser, count]) => (
+                      <tr key={browser}>
+                        <td>{browser}</td>
+                        <td>{count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="no-data">No browser data yet</p>
+              )}
+            </div>
+
+            <div className="analytics-section">
+              <h3>Operating Systems</h3>
+              {analytics.pageviews && analytics.pageviews.length > 0 ? (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>OS</th>
+                      <th>Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupByOS(analytics.pageviews).map(([os, count]) => (
+                      <tr key={os}>
+                        <td>{os}</td>
+                        <td>{count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="no-data">No OS data yet</p>
+              )}
+            </div>
+
+            {groupByUTMSource(analytics.pageviews).length > 0 && (
+              <div className="analytics-section">
+                <h3>UTM Sources (Campaigns)</h3>
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Source</th>
+                      <th>Visits</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupByUTMSource(analytics.pageviews).map(([source, count]) => (
+                      <tr key={source}>
+                        <td>{source}</td>
+                        <td>{count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             <div className="analytics-section full-width">
               <h3>Recent Page Views</h3>
               {analytics.pageviews && analytics.pageviews.length > 0 ? (
@@ -253,7 +468,9 @@ function Analytics({ website, onBack }) {
                         <th>URL</th>
                         <th>Referrer</th>
                         <th>Country</th>
-                        <th>Language</th>
+                        <th>Device</th>
+                        <th>Browser</th>
+                        <th>New?</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -263,7 +480,9 @@ function Analytics({ website, onBack }) {
                           <td className="url-cell" title={pv.url}>{pv.url}</td>
                           <td className="url-cell" title={pv.referrer}>{pv.referrer || 'direct'}</td>
                           <td>{pv.country || 'Unknown'}</td>
-                          <td>{pv.language}</td>
+                          <td style={{ textTransform: 'capitalize' }}>{pv.device_type || 'Unknown'}</td>
+                          <td>{pv.browser_name || 'Unknown'}</td>
+                          <td>{pv.is_new_visitor ? '✅' : '🔄'}</td>
                         </tr>
                       ))}
                     </tbody>

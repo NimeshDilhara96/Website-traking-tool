@@ -92,6 +92,63 @@ app.get('/track.js', (req, res) => {
   res.sendFile(__dirname + '/track.js');
 });
 
+// Helper function to update or create session
+async function updateSession(sessionId, websiteId, visitorId, data) {
+  try {
+    // Check if session exists
+    const { data: existingSession, error: fetchError } = await supabase
+      .from('sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .single();
+
+    if (existingSession) {
+      // Update existing session
+      const { error: updateError } = await supabase
+        .from('sessions')
+        .update({
+          last_activity_at: new Date().toISOString(),
+          pageview_count: (existingSession.pageview_count || 0) + 1,
+          is_bounce: existingSession.pageview_count === 0, // More than 1 page = not a bounce
+          exit_page: data.url,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (updateError) throw updateError;
+    } else {
+      // Create new session
+      const { error: insertError } = await supabase
+        .from('sessions')
+        .insert([{
+          id: sessionId,
+          website_id: websiteId,
+          visitor_id: visitorId,
+          started_at: new Date().toISOString(),
+          last_activity_at: new Date().toISOString(),
+          pageview_count: 1,
+          event_count: 0,
+          is_bounce: true, // Will be updated if more pages are viewed
+          entry_page: data.url,
+          exit_page: data.url,
+          country: data.country,
+          city: data.city,
+          device_type: data.device_type,
+          browser_name: data.browser_name,
+          os_name: data.os_name,
+          utm_source: data.utm_source,
+          utm_medium: data.utm_medium,
+          utm_campaign: data.utm_campaign
+        }]);
+
+      if (insertError) throw insertError;
+    }
+  } catch (error) {
+    console.error('Error updating session:', error);
+    // Don't throw - session tracking is not critical
+  }
+}
+
 // Track page view
 app.post('/api/track/pageview', async (req, res) => {
   try {
@@ -102,16 +159,52 @@ app.post('/api/track/pageview', async (req, res) => {
       screen_resolution,
       language,
       session_id,
-      website_id
+      visitor_id,
+      is_new_visitor,
+      website_id,
+      device_type,
+      browser_name,
+      browser_version,
+      os_name,
+      os_version,
+      is_mobile,
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      utm_term,
+      utm_content,
+      page_load_time,
+      ttfb,
+      fcp,
+      lcp,
+      timezone,
+      timestamp
     } = req.body;
 
-    // Get client IP and detect country
+    // Get client IP and detect country/city
     const clientIp = getClientIp(req);
     const country = getCountryFromIp(clientIp);
     
-    console.log('📊 Tracking pageview for website:', website_id, 'from IP:', clientIp, 'Country:', country);
+    // Try to get city/region from IP
+    let city = null;
+    let region = null;
+    try {
+      if (clientIp && !clientIp.startsWith('192.168.') && !clientIp.startsWith('10.') && clientIp !== '127.0.0.1' && clientIp !== '::1') {
+        const ipWithoutIPv6 = clientIp.startsWith('::ffff:') ? clientIp.substring(7) : clientIp;
+        const geo = geoip.lookup(ipWithoutIPv6);
+        if (geo) {
+          city = geo.city || null;
+          region = geo.region || null;
+        }
+      }
+    } catch (e) {
+      console.error('Error getting city/region:', e);
+    }
+    
+    console.log('📊 Tracking pageview for website:', website_id, 'Visitor:', visitor_id, 'Session:', session_id);
 
-    const { data, error } = await supabase
+    // Insert pageview
+    const { data: pageviewData, error: pageviewError } = await supabase
       .from('pageviews')
       .insert([{
         url,
@@ -120,18 +213,54 @@ app.post('/api/track/pageview', async (req, res) => {
         screen_resolution,
         language,
         country,
+        city,
+        region,
+        timezone,
+        device_type,
+        browser_name,
+        browser_version,
+        os_name,
+        os_version,
+        is_mobile,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_term,
+        utm_content,
+        page_load_time,
+        ttfb,
+        fcp,
+        lcp,
+        visitor_id,
+        is_new_visitor,
+        is_entry: false, // Will be calculated
+        is_exit: false,  // Will be calculated
         session_id,
         website_id,
-        timestamp: new Date().toISOString()
-      }]);
+        timestamp: timestamp || new Date().toISOString()
+      }])
+      .select();
 
-    if (error) {
-      console.error('❌ Error tracking pageview:', error);
-      throw error;
+    if (pageviewError) {
+      console.error('❌ Error tracking pageview:', pageviewError);
+      throw pageviewError;
     }
 
+    // Update or create session
+    await updateSession(session_id, website_id, visitor_id, {
+      country,
+      city,
+      device_type,
+      browser_name,
+      os_name,
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      url
+    });
+
     console.log('✅ Pageview tracked successfully');
-    res.status(200).json({ success: true, data });
+    res.status(200).json({ success: true, data: pageviewData });
   } catch (error) {
     console.error('Error tracking pageview:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -146,7 +275,8 @@ app.post('/api/track/event', async (req, res) => {
       event_data,
       url,
       session_id,
-      website_id
+      website_id,
+      visitor_id
     } = req.body;
 
     console.log('📊 Tracking event:', event_name, 'for website:', website_id);
@@ -167,6 +297,39 @@ app.post('/api/track/event', async (req, res) => {
       throw error;
     }
 
+    // Update session event count and handle special events
+    if (session_id) {
+      try {
+        const { data: sessionData } = await supabase
+          .from('sessions')
+          .select('*')
+          .eq('id', session_id)
+          .single();
+
+        if (sessionData) {
+          const updates = {
+            event_count: (sessionData.event_count || 0) + 1,
+            last_activity_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+
+          // Calculate session duration for time_on_page events
+          if (event_name === 'time_on_page' && event_data?.time_on_page) {
+            const sessionStart = new Date(sessionData.started_at);
+            const now = new Date();
+            updates.duration = Math.round((now - sessionStart) / 1000);
+          }
+
+          await supabase
+            .from('sessions')
+            .update(updates)
+            .eq('id', session_id);
+        }
+      } catch (sessionError) {
+        console.error('Error updating session for event:', sessionError);
+      }
+    }
+
     console.log('✅ Event tracked successfully');
     res.status(200).json({ success: true, data });
   } catch (error) {
@@ -185,7 +348,8 @@ app.get('/api/analytics/:website_id', async (req, res) => {
     let query = supabase
       .from('pageviews')
       .select('*')
-      .eq('website_id', website_id);
+      .eq('website_id', website_id)
+      .order('timestamp', { ascending: false });
 
     if (start_date) query = query.gte('timestamp', start_date);
     if (end_date) query = query.lte('timestamp', end_date);
@@ -198,7 +362,8 @@ app.get('/api/analytics/:website_id', async (req, res) => {
     let eventQuery = supabase
       .from('events')
       .select('*')
-      .eq('website_id', website_id);
+      .eq('website_id', website_id)
+      .order('timestamp', { ascending: false });
 
     if (start_date) eventQuery = eventQuery.gte('timestamp', start_date);
     if (end_date) eventQuery = eventQuery.lte('timestamp', end_date);
@@ -207,13 +372,52 @@ app.get('/api/analytics/:website_id', async (req, res) => {
 
     if (eventError) throw eventError;
 
+    // Get sessions
+    let sessionQuery = supabase
+      .from('sessions')
+      .select('*')
+      .eq('website_id', website_id)
+      .order('started_at', { ascending: false });
+
+    if (start_date) sessionQuery = sessionQuery.gte('started_at', start_date);
+    if (end_date) sessionQuery = sessionQuery.lte('started_at', end_date);
+
+    const { data: sessions, error: sessionError } = await sessionQuery;
+
+    if (sessionError) throw sessionError;
+
+    // Calculate metrics
+    const uniqueVisitors = new Set(pageviews.map(pv => pv.visitor_id)).size;
+    const newVisitors = pageviews.filter(pv => pv.is_new_visitor).length;
+    const returningVisitors = uniqueVisitors - newVisitors;
+    
+    // Calculate bounce rate
+    const bouncedSessions = sessions.filter(s => s.is_bounce).length;
+    const bounceRate = sessions.length > 0 ? ((bouncedSessions / sessions.length) * 100).toFixed(2) : 0;
+    
+    // Calculate average session duration
+    const totalDuration = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+    const avgSessionDuration = sessions.length > 0 ? Math.round(totalDuration / sessions.length) : 0;
+    
+    // Calculate pages per session
+    const totalPageviews = pageviews.length;
+    const pagesPerSession = sessions.length > 0 ? (totalPageviews / sessions.length).toFixed(2) : 0;
+
     res.status(200).json({
       success: true,
       data: {
         pageviews,
         events,
+        sessions,
         total_pageviews: pageviews.length,
-        total_events: events.length
+        total_events: events.length,
+        total_sessions: sessions.length,
+        unique_visitors: uniqueVisitors,
+        new_visitors: newVisitors,
+        returning_visitors: returningVisitors,
+        bounce_rate: bounceRate,
+        avg_session_duration: avgSessionDuration,
+        pages_per_session: pagesPerSession
       }
     });
   } catch (error) {
