@@ -1,9 +1,10 @@
 .add-website-form {
   background: #f9f9f9;
-  border: 2px solid #ddd;
-  border-radius: 8px;
+  border: none;
+  border-bottom: 2px solid #e0e0e0;
+  border-radius: 0;
   padding: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 0;
 }
 
 .add-website-form h3 {

@@ -4,7 +4,7 @@ import AddWebsiteForm from './AddWebsiteForm';
 import WebsiteCard from './WebsiteCard';
 import './WebsiteList.css';
 
-function WebsiteList({ onSelectWebsite }) {
+function WebsiteList({ onSelectWebsite, selectedWebsite }) {
   const [websites, setWebsites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -92,6 +92,7 @@ function WebsiteList({ onSelectWebsite }) {
           <WebsiteCard
             key={website.id}
             website={website}
+            selected={selectedWebsite?.id === website.id}
             onSelect={() => onSelectWebsite(website)}
             onDelete={() => handleDeleteWebsite(website.id)}
           />
