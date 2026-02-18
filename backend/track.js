@@ -255,7 +255,8 @@
       event_data: eventData,
       url: window.location.href,
       session_id: getSessionId(),
-      website_id: WEBSITE_ID
+      website_id: WEBSITE_ID,
+      visitor_id: getVisitorId().visitorId
     };
     sendTrackingData('/api/track/event', data);
   }

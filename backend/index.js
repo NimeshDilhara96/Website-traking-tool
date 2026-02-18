@@ -289,6 +289,7 @@ app.post('/api/track/event', async (req, res) => {
         url,
         session_id,
         website_id,
+        visitor_id,
         timestamp: new Date().toISOString()
       }]);
 

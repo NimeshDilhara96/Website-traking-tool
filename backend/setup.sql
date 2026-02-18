@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS events (
   url TEXT NOT NULL,
   session_id TEXT NOT NULL,
   website_id TEXT NOT NULL,
+  visitor_id TEXT,
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -153,6 +154,7 @@ CREATE INDEX IF NOT EXISTS idx_events_website_id ON events(website_id);
 CREATE INDEX IF NOT EXISTS idx_events_timestamp ON events(timestamp);
 CREATE INDEX IF NOT EXISTS idx_events_session_id ON events(session_id);
 CREATE INDEX IF NOT EXISTS idx_events_event_name ON events(event_name);
+CREATE INDEX IF NOT EXISTS idx_events_visitor_id ON events(visitor_id);
 
 -- Enable Row Level Security (optional, for multi-tenant scenarios)
 ALTER TABLE websites ENABLE ROW LEVEL SECURITY;

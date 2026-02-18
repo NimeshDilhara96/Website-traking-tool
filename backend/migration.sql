@@ -29,6 +29,9 @@ ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS is_new_visitor BOOLEAN DEFAULT tr
 ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS is_entry BOOLEAN DEFAULT false;
 ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS is_exit BOOLEAN DEFAULT false;
 
+-- Step 1.5: Add visitor_id to events table (for active user tracking)
+ALTER TABLE events ADD COLUMN IF NOT EXISTS visitor_id TEXT;
+
 -- Step 2: Create sessions table
 CREATE TABLE IF NOT EXISTS sessions (
   id TEXT PRIMARY KEY,
@@ -64,6 +67,8 @@ CREATE INDEX IF NOT EXISTS idx_pageviews_utm_campaign ON pageviews(utm_campaign)
 CREATE INDEX IF NOT EXISTS idx_sessions_website_id ON sessions(website_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_visitor_id ON sessions(visitor_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_started_at ON sessions(started_at);
+
+CREATE INDEX IF NOT EXISTS idx_events_visitor_id ON events(visitor_id);
 
 -- Step 4: Enable RLS on sessions table
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
