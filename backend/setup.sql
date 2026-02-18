@@ -1,3 +1,38 @@
+-- ============================================
+-- MIGRATION SCRIPT: Add new analytics columns
+-- Run this if you already have existing tables
+-- ============================================
+
+-- Add new columns to pageviews table (if they don't exist)
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS city TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS region TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS timezone TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS device_type TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS browser_name TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS browser_version TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS os_name TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS os_version TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS is_mobile BOOLEAN DEFAULT false;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS utm_source TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS utm_medium TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS utm_campaign TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS utm_term TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS utm_content TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS page_load_time INTEGER;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS ttfb INTEGER;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS fcp INTEGER;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS lcp INTEGER;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS scroll_depth INTEGER;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS time_on_page INTEGER;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS visitor_id TEXT;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS is_new_visitor BOOLEAN DEFAULT true;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS is_entry BOOLEAN DEFAULT false;
+ALTER TABLE pageviews ADD COLUMN IF NOT EXISTS is_exit BOOLEAN DEFAULT false;
+
+-- ============================================
+-- FULL TABLE DEFINITIONS (for new installations)
+-- ============================================
+
 -- Create websites table
 CREATE TABLE IF NOT EXISTS websites (
   id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
@@ -123,7 +158,14 @@ CREATE INDEX IF NOT EXISTS idx_events_event_name ON events(event_name);
 ALTER TABLE websites ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pageviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+
+-- Enable RLS on sessions table if it exists
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT FROM pg_tables WHERE tablename = 'sessions') THEN
+    ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 
 -- Create policies for websites table
 CREATE POLICY "Allow all operations on websites" ON websites
@@ -140,10 +182,13 @@ CREATE POLICY "Allow anonymous inserts on events" ON events
   FOR INSERT TO anon
   WITH CHECK (true);
 
-CREATE POLICY "Allow anonymous operations on sessions" ON sessions
-  FOR ALL TO anon
-  USING (true)
-  WITH CHECK (true);
+-- Create policy for sessions table (if it exists)
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT FROM pg_tables WHERE tablename = 'sessions') THEN
+    EXECUTE 'CREATE POLICY IF NOT EXISTS "Allow anonymous operations on sessions" ON sessions FOR ALL TO anon USING (true) WITH CHECK (true)';
+  END IF;
+END $$;
 
 -- Create a policy to allow reads (adjust based on your security needs)
 CREATE POLICY "Allow all operations on pageviews" ON pageviews
@@ -156,7 +201,10 @@ CREATE POLICY "Allow all operations on events" ON events
   USING (true)
   WITH CHECK (true);
 
-CREATE POLICY "Allow all operations on sessions" ON sessions
-  FOR ALL
-  USING (true)
-  WITH CHECK (true);
+-- Create policy for sessions table (if it exists)
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT FROM pg_tables WHERE tablename = 'sessions') THEN
+    EXECUTE 'CREATE POLICY IF NOT EXISTS "Allow all operations on sessions" ON sessions FOR ALL USING (true) WITH CHECK (true)';
+  END IF;
+END $$;
