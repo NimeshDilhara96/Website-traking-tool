@@ -64,6 +64,20 @@ function Analytics({ website, onBack }) {
       .slice(0, 10);
   };
 
+  const groupByCountry = (pageviews) => {
+    const grouped = {};
+    pageviews.forEach(pv => {
+      const country = pv.country || 'Unknown';
+      if (!grouped[country]) {
+        grouped[country] = 0;
+      }
+      grouped[country]++;
+    });
+    return Object.entries(grouped)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+  };
+
   if (loading) {
     return <div className="loading">Loading analytics...</div>;
   }
@@ -204,6 +218,30 @@ function Analytics({ website, onBack }) {
               )}
             </div>
 
+            <div className="analytics-section">
+              <h3>Visitors by Country</h3>
+              {analytics.pageviews && analytics.pageviews.length > 0 ? (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Country</th>
+                      <th>Visitors</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupByCountry(analytics.pageviews).map(([country, count]) => (
+                      <tr key={country}>
+                        <td>{country}</td>
+                        <td>{count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="no-data">No country data yet</p>
+              )}
+            </div>
+
             <div className="analytics-section full-width">
               <h3>Recent Page Views</h3>
               {analytics.pageviews && analytics.pageviews.length > 0 ? (
@@ -214,6 +252,7 @@ function Analytics({ website, onBack }) {
                         <th>Timestamp</th>
                         <th>URL</th>
                         <th>Referrer</th>
+                        <th>Country</th>
                         <th>Language</th>
                       </tr>
                     </thead>
@@ -223,6 +262,7 @@ function Analytics({ website, onBack }) {
                           <td>{new Date(pv.timestamp).toLocaleString()}</td>
                           <td className="url-cell" title={pv.url}>{pv.url}</td>
                           <td className="url-cell" title={pv.referrer}>{pv.referrer || 'direct'}</td>
+                          <td>{pv.country || 'Unknown'}</td>
                           <td>{pv.language}</td>
                         </tr>
                       ))}
