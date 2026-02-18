@@ -1,4 +1,4 @@
-# Root .gitignore for the entire project
+del backend\.gitignore# Root .gitignore for the entire project
 
 # Environment variables
 .env
