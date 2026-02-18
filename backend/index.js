@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
+const geoip = require('geoip-lite');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -47,6 +48,44 @@ app.use((req, res, next) => {
   next();
 });
 
+// Helper function to get client IP address
+function getClientIp(req) {
+  // Check various headers that might contain the real IP
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) {
+    // x-forwarded-for can contain multiple IPs, get the first one
+    return forwarded.split(',')[0].trim();
+  }
+  return req.headers['x-real-ip'] || 
+         req.connection.remoteAddress || 
+         req.socket.remoteAddress ||
+         req.ip;
+}
+
+// Helper function to get country from IP
+function getCountryFromIp(ip) {
+  try {
+    // Handle IPv4-mapped IPv6 addresses (e.g., ::ffff:192.168.1.1)
+    if (ip && ip.startsWith('::ffff:')) {
+      ip = ip.substring(7);
+    }
+    
+    // Skip local IPs
+    if (!ip || ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+      return 'Local';
+    }
+    
+    const geo = geoip.lookup(ip);
+    if (geo && geo.country) {
+      return geo.country;
+    }
+    return 'Unknown';
+  } catch (error) {
+    console.error('Error getting country from IP:', error);
+    return 'Unknown';
+  }
+}
+
 // Serve tracking script
 app.get('/track.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
@@ -66,7 +105,11 @@ app.post('/api/track/pageview', async (req, res) => {
       website_id
     } = req.body;
 
-    console.log('📊 Tracking pageview for website:', website_id);
+    // Get client IP and detect country
+    const clientIp = getClientIp(req);
+    const country = getCountryFromIp(clientIp);
+    
+    console.log('📊 Tracking pageview for website:', website_id, 'from IP:', clientIp, 'Country:', country);
 
     const { data, error } = await supabase
       .from('pageviews')
@@ -76,6 +119,7 @@ app.post('/api/track/pageview', async (req, res) => {
         user_agent,
         screen_resolution,
         language,
+        country,
         session_id,
         website_id,
         timestamp: new Date().toISOString()

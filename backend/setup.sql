@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS pageviews (
   user_agent TEXT,
   screen_resolution TEXT,
   language TEXT,
+  country TEXT,
   session_id TEXT NOT NULL,
   website_id TEXT NOT NULL,
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
