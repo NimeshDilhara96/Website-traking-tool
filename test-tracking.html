@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        #console {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log { margin: 5px 0; }
+        .log-success { color: #4ec9b0; }
+        .log-error { color: #f48771; }
+        .log-info { color: #9cdcfe; }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Analytics Tracking Test Page</h1>
+        
+        <div class="status info" id="status">
+            ⏳ Initializing tracking... Please wait.
+        </div>
+
+        <h2>Instructions:</h2>
+        <ol>
+            <li>Make sure your backend is running on Render: <code>https://website-traking-tool.onrender.com</code></li>
+            <li>Replace <code>YOUR_WEBSITE_ID</code> below with your actual Website ID from the dashboard</li>
+            <li>Open this file in a browser (or use Live Server in VS Code)</li>
+            <li>Check the console output below for tracking status</li>
+        </ol>
+
+        <h2>Test Actions:</h2>
+        <button onclick="testPageView()">📊 Test Page View</button>
+        <button onclick="testCustomEvent()">🎯 Test Custom Event</button>
+        <button onclick="testButtonClick()">👆 Test Button Click</button>
+        <button onclick="clearConsole()">🗑️ Clear Console</button>
+
+        <h2>Console Output:</h2>
+        <div id="console">
+            <div class="log log-info">Console initialized. Waiting for tracking events...</div>
+        </div>
+    </div>
+
+    <!-- Analytics Tracking Code -->
+    <!-- IMPORTANT: Replace 'YOUR_WEBSITE_ID' with your actual Website ID from dashboard -->
+    <script>
+        // Configuration
+        window.TRACKING_WEBSITE_ID = 'a5b99010-b526-459b-8158-f274fff17e86'; // ⚠️ REPLACE THIS!
+        window.TRACKING_DEBUG = true; // Enable debug mode
+    </script>
+    <script src="https://website-traking-tool.onrender.com/track.js"></script>
+
+    <!-- Test functions -->
+    <script>
+        const consoleDiv = document.getElementById('console');
+        const statusDiv = document.getElementById('status');
+        let initialized = false;
+
+        // Custom console logging
+        function logToConsole(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log log-${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            consoleDiv.appendChild(logEntry);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        // Override console methods to capture logs
+        const originalLog = console.log;
+        const originalError = console.error;
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg
+            ).join(' ');
+            logToConsole(message, 'info');
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg
+            ).join(' ');
+            logToConsole(message, 'error');
+            updateStatus('❌ Error occurred. Check console output.', 'error');
+        };
+
+        // Update status
+        function updateStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        // Wait for Analytics to be ready
+        let checkInterval = setInterval(() => {
+            if (window.Analytics) {
+                clearInterval(checkInterval);
+                initialized = true;
+                logToConsole('✅ Analytics initialized successfully!', 'success');
+                updateStatus('✅ Tracking initialized! Try the test buttons above.', 'success');
+                
+                // Log configuration
+                logToConsole(`Website ID: ${window.TRACKING_WEBSITE_ID}`, 'info');
+                logToConsole(`Session ID: ${window.Analytics.getSessionId()}`, 'info');
+            }
+        }, 100);
+
+        // Timeout after 30 seconds
+        setTimeout(() => {
+            if (!initialized) {
+                clearInterval(checkInterval);
+                logToConsole('❌ Analytics failed to initialize after 30 seconds', 'error');
+                updateStatus('❌ Failed to initialize. Backend might be sleeping (Render free tier takes ~30s to wake up). Try refreshing.', 'error');
+            }
+        }, 30000);
+
+        // Test functions
+        function testPageView() {
+            if (!window.Analytics) {
+                logToConsole('❌ Analytics not initialized yet', 'error');
+                return;
+            }
+            logToConsole('🔵 Manually tracking page view...', 'info');
+            window.Analytics.trackPageView();
+        }
+
+        function testCustomEvent() {
+            if (!window.Analytics) {
+                logToConsole('❌ Analytics not initialized yet', 'error');
+                return;
+            }
+            logToConsole('🔵 Tracking custom event...', 'info');
+            window.Analytics.trackEvent('Test Event', {
+                test_type: 'manual',
+                timestamp: new Date().toISOString(),
+                test_data: 'This is a test event'
+            });
+        }
+
+        function testButtonClick() {
+            if (!window.Analytics) {
+                logToConsole('❌ Analytics not initialized yet', 'error');
+                return;
+            }
+            logToConsole('🔵 Tracking button click event...', 'info');
+            window.Analytics.trackEvent('Button Clicked', {
+                button_name: 'Test Button',
+                location: 'test page'
+            });
+        }
+
+        function clearConsole() {
+            consoleDiv.innerHTML = '<div class="log log-info">Console cleared.</div>';
+        }
+
+        // Check website ID
+        setTimeout(() => {
+            if (window.TRACKING_WEBSITE_ID === 'YOUR_WEBSITE_ID') {
+                logToConsole('⚠️ WARNING: You need to replace YOUR_WEBSITE_ID with your actual Website ID!', 'error');
+                updateStatus('⚠️ Please set your Website ID in the script!', 'error');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
