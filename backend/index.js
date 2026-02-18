@@ -543,6 +543,55 @@ app.delete('/api/websites/:id', async (req, res) => {
   }
 });
 
+// Get active users (users with heartbeat in last 45 seconds)
+app.get('/api/analytics/:website_id/active', async (req, res) => {
+  try {
+    const { website_id } = req.params;
+    
+    // Get heartbeat events from the last 45 seconds
+    const fortyFiveSecondsAgo = new Date(Date.now() - 45000).toISOString();
+    
+    const { data, error } = await supabase
+      .from('events')
+      .select('session_id, visitor_id, timestamp, event_data')
+      .eq('website_id', website_id)
+      .eq('event_name', 'heartbeat')
+      .gte('timestamp', fortyFiveSecondsAgo)
+      .order('timestamp', { ascending: false });
+
+    if (error) throw error;
+
+    // Get unique active users (by session_id)
+    const uniqueSessions = new Set();
+    const activeUsers = [];
+    
+    data.forEach(event => {
+      if (!uniqueSessions.has(event.session_id)) {
+        uniqueSessions.add(event.session_id);
+        activeUsers.push({
+          session_id: event.session_id,
+          visitor_id: event.visitor_id,
+          last_seen: event.timestamp,
+          page: event.event_data?.page || null,
+          time_on_page: event.event_data?.time_on_page || 0,
+          scroll_depth: event.event_data?.scroll_depth || 0
+        });
+      }
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      data: {
+        count: activeUsers.length,
+        users: activeUsers
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching active users:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Tracking server running on port ${PORT}`);
   console.log(`Tracking script available at: http://localhost:${PORT}/track.js`);

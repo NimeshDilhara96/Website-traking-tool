@@ -79,6 +79,11 @@ export const analyticsAPI = {
 
     return fetchAPI(url);
   },
+
+  // Get active users (those with recent heartbeat)
+  getActiveUsers: async (websiteId) => {
+    return fetchAPI(`/api/analytics/${websiteId}/active`);
+  },
 };
 
 // Get tracking script URL

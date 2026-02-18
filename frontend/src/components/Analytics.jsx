@@ -8,10 +8,35 @@ function Analytics({ website, onBack }) {
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [showTrackingCode, setShowTrackingCode] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState(30);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [activeUsers, setActiveUsers] = useState(null);
+  const [activeUsersLoading, setActiveUsersLoading] = useState(false);
 
   useEffect(() => {
     loadAnalytics();
+    loadActiveUsers();
   }, [website.id, dateRange]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+
+    const interval = setInterval(() => {
+      loadAnalytics();
+    }, refreshInterval * 1000);
+
+    return () => clearInterval(interval);
+  }, [autoRefresh, refreshInterval, website.id, dateRange]);
+
+  // Separate interval for active users (every 10 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadActiveUsers();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [website.id]);
 
   const loadAnalytics = async () => {
     try {
@@ -23,11 +48,25 @@ function Analytics({ website, onBack }) {
         dateRange.end || null
       );
       setAnalytics(response.data);
+      setLastUpdated(new Date());
     } catch (err) {
       setError(err.message || 'Failed to load analytics');
       console.error('Error loading analytics:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadActiveUsers = async () => {
+    try {
+      setActiveUsersLoading(true);
+      const response = await analyticsAPI.getActiveUsers(website.id);
+      setActiveUsers(response.data);
+    } catch (err) {
+      console.error('Error loading active users:', err);
+      setActiveUsers({ count: 0, users: [] });
+    } finally {
+      setActiveUsersLoading(false);
     }
   };
 
@@ -201,10 +240,83 @@ function Analytics({ website, onBack }) {
           </div>
         </div>
 
+        {/* Auto-Refresh Controls */}
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <button
+                onClick={loadAnalytics}
+                disabled={loading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {loading ? 'Refreshing...' : 'Refresh Now'}
+              </button>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={autoRefresh}
+                  onChange={(e) => setAutoRefresh(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm font-medium text-gray-700">Auto-refresh</span>
+              </label>
+
+              <select
+                value={refreshInterval}
+                onChange={(e) => setRefreshInterval(Number(e.target.value))}
+                disabled={!autoRefresh}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value={10}>Every 10 seconds</option>
+                <option value={30}>Every 30 seconds</option>
+                <option value={60}>Every 1 minute</option>
+                <option value={120}>Every 2 minutes</option>
+                <option value={300}>Every 5 minutes</option>
+              </select>
+            </div>
+
+            {lastUpdated && (
+              <div className="text-sm text-gray-600 flex items-center gap-2">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Key Metrics Grid */}
         {analytics && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Active Users - Real-time */}
+              <div className="bg-linear-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg shadow-lg p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-green-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-medium text-green-700 uppercase tracking-wide">Active Now</h3>
+                    <div className="flex items-center gap-1">
+                      <div className={`w-2 h-2 rounded-full ${activeUsers?.count > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}></div>
+                      <span className="text-xs text-green-600">Live</span>
+                    </div>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-4xl font-bold text-green-600">
+                      {activeUsersLoading ? '...' : (activeUsers?.count || 0)}
+                    </p>
+                    <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <p className="text-xs text-green-600 mt-1">Users online right now</p>
+                </div>
+              </div>
+
               <StatCard
                 title="Page Views"
                 value={(analytics.total_pageviews || 0).toLocaleString()}
@@ -223,6 +335,9 @@ function Analytics({ website, onBack }) {
                 icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>}
                 color="yellow"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <StatCard
                 title="Avg Session"
                 value={formatDuration(analytics.avg_session_duration || 0)}
@@ -279,6 +394,42 @@ function Analytics({ website, onBack }) {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* Active Users Details */}
+            {activeUsers && activeUsers.count > 0 && (
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                    <h3 className="text-lg font-semibold text-gray-900">Active Users Right Now</h3>
+                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">{activeUsers.count}</span>
+                  </div>
+                  <span className="text-sm text-gray-500">Updates every 10 seconds</span>
+                </div>
+                <div className="space-y-3">
+                  {activeUsers.users.slice(0, 10).map((user, index) => (
+                    <div key={user.session_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {user.page ? new URL(user.page).pathname : 'Unknown page'}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatDuration(user.time_on_page)} on page • {user.scroll_depth}% scrolled
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {Math.round((Date.now() - new Date(user.last_seen).getTime()) / 1000)}s ago
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

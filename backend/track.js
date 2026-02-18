@@ -441,6 +441,17 @@
         }
       }
     }, { passive: true });
+
+    // Track heartbeat every 15 seconds to monitor active users
+    setInterval(() => {
+      trackEvent('heartbeat', {
+        page: window.location.href,
+        time_on_page: getTimeOnPage(),
+        scroll_depth: maxScrollDepth
+      });
+    }, 15000);
+
+    console.log('💓 Heartbeat tracking enabled (every 15 seconds)');
   }
 
   // Expose tracking functions globally
