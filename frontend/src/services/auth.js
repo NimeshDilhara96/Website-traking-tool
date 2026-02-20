@@ -29,10 +29,18 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
+      // Only redirect if user had a token (expired session)
+      // Don't redirect on failed login attempts (no token present)
+      const hadToken = localStorage.getItem('token');
+      
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      
+      // Only force redirect if this was an authenticated request that failed
+      // (i.e., token expired), not a failed login attempt
+      if (hadToken && !error.config?.url?.includes('/auth/login')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
