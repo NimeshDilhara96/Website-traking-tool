@@ -1,11 +1,12 @@
+import { BrowserRouter as Router, Routes, Route, Navigate, useSearchParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Analytics from './components/Analytics';
 import Login from './components/Login';
 import Register from './components/Register';
+import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { websiteAPI } from './services/api';
 
 function AppContent() {
@@ -29,7 +30,6 @@ function AppContent() {
       if (website) {
         setSelectedWebsite(website);
       } else {
-        // If website not found, clear the URL parameter
         setSearchParams({});
       }
     } catch (err) {
@@ -41,11 +41,9 @@ function AppContent() {
   const handleSelectWebsite = (website) => {
     if (website) {
       setSelectedWebsite(website);
-      // Update URL with encoded domain
       setSearchParams({ resource_id: encodeURIComponent(website.domain) });
     } else {
       setSelectedWebsite(null);
-      // Clear URL parameter
       setSearchParams({});
     }
   };
@@ -56,18 +54,32 @@ function AppContent() {
   };
 
   return (
-    <Navbar selectedWebsite={selectedWebsite} onSelectWebsite={handleSelectWebsite}>
+    <div className="flex flex-col min-h-screen">
       <Routes>
-        <Route path="/" element={
-          selectedWebsite ? <Analytics website={selectedWebsite} onBack={handleBack} /> : null
-        } />
-        <Route path="/analytics" element={
-          selectedWebsite ? <Analytics website={selectedWebsite} onBack={handleBack} /> : null
-        } />
-        <Route path="/websites" element={null} />
-        <Route path="/profile" element={null} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <div className="flex flex-col flex-1">
+                <Navbar selectedWebsite={selectedWebsite} onSelectWebsite={handleSelectWebsite}>
+                  <Routes>
+                    <Route path="/" element={
+                      selectedWebsite ? <Analytics website={selectedWebsite} onBack={handleBack} /> : null
+                    } />
+                    <Route path="/analytics" element={
+                      selectedWebsite ? <Analytics website={selectedWebsite} onBack={handleBack} /> : null
+                    } />
+                  </Routes>
+                </Navbar>
+                <Footer />
+              </div>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-    </Navbar>
+    </div>
   );
 }
 
@@ -75,15 +87,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/*" element={
-            <ProtectedRoute>
-              <AppContent />
-            </ProtectedRoute>
-          } />
-        </Routes>
+        <AppContent />
       </AuthProvider>
     </Router>
   );
