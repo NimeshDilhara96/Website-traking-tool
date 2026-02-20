@@ -453,9 +453,7 @@ app.get('/api/auth/me', authenticateToken, authController.getCurrentUser(supabas
 app.get('/api/auth/verify', authenticateToken, authController.verifyToken);
 
 // Logout (client-side will remove token)
-app.post('/api/auth/logout', (req, res) => {
-  res.status(200).json({ success: true, message: 'Logged out successfully' });
-});
+app.post('/api/auth/logout', authenticateToken, authController.logout);
 
 // Website Management Endpoints
 

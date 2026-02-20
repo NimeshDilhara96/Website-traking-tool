@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -41,7 +41,7 @@ api.interceptors.response.use(
 // Authentication API
 export const authAPI = {
   register: async (email, password, name) => {
-    const response = await api.post('/auth/register', { email, password, name });
+    const response = await api.post('/api/auth/register', { email, password, name });
     if (response.data.success) {
       localStorage.setItem('token', response.data.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.data.user));
@@ -50,7 +50,7 @@ export const authAPI = {
   },
 
   login: async (email, password) => {
-    const response = await api.post('/auth/login', { email, password });
+    const response = await api.post('/api/auth/login', { email, password });
     if (response.data.success) {
       localStorage.setItem('token', response.data.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.data.user));
@@ -60,7 +60,7 @@ export const authAPI = {
 
   logout: async () => {
     try {
-      await api.post('/auth/logout');
+      await api.post('/api/auth/logout');
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -68,12 +68,12 @@ export const authAPI = {
   },
 
   getCurrentUser: async () => {
-    const response = await api.get('/auth/me');
+    const response = await api.get('/api/auth/me');
     return response.data;
   },
 
   verifyToken: async () => {
-    const response = await api.get('/auth/verify');
+    const response = await api.get('/api/auth/verify');
     return response.data;
   },
 
