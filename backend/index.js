@@ -1,8 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const { createClient } = require('@supabase/supabase-js');
 const geoip = require('geoip-lite');
+const { authenticateToken } = require('./authMiddleware');
+const authController = require('./authController');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,6 +44,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 // Logging middleware
 app.use((req, res, next) => {
@@ -432,14 +436,36 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// ==============================================
+// AUTHENTICATION ENDPOINTS
+// ==============================================
+
+// Register new user
+app.post('/api/auth/register', authController.register(supabase));
+
+// Login user
+app.post('/api/auth/login', authController.login(supabase));
+
+// Get current user (protected)
+app.get('/api/auth/me', authenticateToken, authController.getCurrentUser(supabase));
+
+// Verify token
+app.get('/api/auth/verify', authenticateToken, authController.verifyToken);
+
+// Logout (client-side will remove token)
+app.post('/api/auth/logout', (req, res) => {
+  res.status(200).json({ success: true, message: 'Logged out successfully' });
+});
+
 // Website Management Endpoints
 
-// Get all websites
-app.get('/api/websites', async (req, res) => {
+// Get all websites (protected - only user's websites)
+app.get('/api/websites', authenticateToken, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('websites')
       .select('*')
+      .eq('user_id', req.user.userId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -451,8 +477,8 @@ app.get('/api/websites', async (req, res) => {
   }
 });
 
-// Get a single website
-app.get('/api/websites/:id', async (req, res) => {
+// Get a single website (protected - only user's website)
+app.get('/api/websites/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -460,9 +486,14 @@ app.get('/api/websites/:id', async (req, res) => {
       .from('websites')
       .select('*')
       .eq('id', id)
+      .eq('user_id', req.user.userId)
       .single();
 
     if (error) throw error;
+
+    if (!data) {
+      return res.status(404).json({ success: false, error: 'Website not found' });
+    }
 
     res.status(200).json({ success: true, data });
   } catch (error) {
@@ -471,8 +502,8 @@ app.get('/api/websites/:id', async (req, res) => {
   }
 });
 
-// Create a new website
-app.post('/api/websites', async (req, res) => {
+// Create a new website (protected)
+app.post('/api/websites', authenticateToken, async (req, res) => {
   try {
     const { name, domain } = req.body;
 
@@ -485,7 +516,11 @@ app.post('/api/websites', async (req, res) => {
 
     const { data, error } = await supabase
       .from('websites')
-      .insert([{ name, domain }])
+      .insert([{ 
+        name, 
+        domain,
+        user_id: req.user.userId 
+      }])
       .select()
       .single();
 
@@ -498,8 +533,8 @@ app.post('/api/websites', async (req, res) => {
   }
 });
 
-// Update a website
-app.put('/api/websites/:id', async (req, res) => {
+// Update a website (protected - only user's website)
+app.put('/api/websites/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, domain } = req.body;
@@ -513,10 +548,15 @@ app.put('/api/websites/:id', async (req, res) => {
       .from('websites')
       .update(updateData)
       .eq('id', id)
+      .eq('user_id', req.user.userId)
       .select()
       .single();
 
     if (error) throw error;
+
+    if (!data) {
+      return res.status(404).json({ success: false, error: 'Website not found' });
+    }
 
     res.status(200).json({ success: true, data });
   } catch (error) {
@@ -525,15 +565,16 @@ app.put('/api/websites/:id', async (req, res) => {
   }
 });
 
-// Delete a website
-app.delete('/api/websites/:id', async (req, res) => {
+// Delete a website (protected - only user's website)
+app.delete('/api/websites/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
     const { error } = await supabase
       .from('websites')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', req.user.userId);
 
     if (error) throw error;
 

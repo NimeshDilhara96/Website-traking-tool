@@ -4,9 +4,13 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 async function fetchAPI(endpoint, options = {}) {
   const url = `${API_URL}${endpoint}`;
   
+  // Get token from localStorage
+  const token = localStorage.getItem('token');
+  
   const config = {
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     },
     ...options,
@@ -17,6 +21,14 @@ async function fetchAPI(endpoint, options = {}) {
     
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
+      
+      // Handle auth errors
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+      
       throw new Error(error.error || `HTTP ${response.status}: ${response.statusText}`);
     }
 

@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Analytics from './components/Analytics';
+import Login from './components/Login';
+import Register from './components/Register';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { websiteAPI } from './services/api';
 
 function AppContent() {
@@ -55,10 +59,10 @@ function AppContent() {
     <Navbar selectedWebsite={selectedWebsite} onSelectWebsite={handleSelectWebsite}>
       <Routes>
         <Route path="/" element={
-          selectedWebsite && <Analytics website={selectedWebsite} onBack={handleBack} />
+          selectedWebsite ? <Analytics website={selectedWebsite} onBack={handleBack} /> : null
         } />
         <Route path="/analytics" element={
-          selectedWebsite && <Analytics website={selectedWebsite} onBack={handleBack} />
+          selectedWebsite ? <Analytics website={selectedWebsite} onBack={handleBack} /> : null
         } />
         <Route path="/websites" element={null} />
         <Route path="/profile" element={null} />
@@ -70,7 +74,17 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <AppContent />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }

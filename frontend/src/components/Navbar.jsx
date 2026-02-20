@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Activity, BarChart3, Globe, User } from 'lucide-react';
 import WebsiteList from './WebsiteList';
+import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = ({ children, selectedWebsite, onSelectWebsite }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -71,10 +79,19 @@ const Navbar = ({ children, selectedWebsite, onSelectWebsite }) => {
 
             {/* User Profile & Logout (Desktop) */}
             <div className="items-center hidden space-x-4 md:flex">
-              <button className="px-4 py-2 font-medium text-gray-700 transition-colors hover:text-blue-600">
-                Settings
-              </button>
-              <button className="px-4 py-2 font-medium text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700">
+              <div className="flex items-center gap-3 px-4 py-2 bg-gray-100 rounded-lg">
+                <div className="flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full">
+                  <User size={16} />
+                </div>
+                <div className="text-sm">
+                  <div className="font-semibold text-gray-900">{user?.name || 'User'}</div>
+                  <div className="text-xs text-gray-500">{user?.email}</div>
+                </div>
+              </div>
+              <button 
+                onClick={handleLogout}
+                className="px-4 py-2 font-medium text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
+              >
                 Logout
               </button>
             </div>
@@ -117,10 +134,19 @@ const Navbar = ({ children, selectedWebsite, onSelectWebsite }) => {
             
             {/* Mobile User Actions */}
             <div className="pt-4 mt-4 space-y-2 border-t border-gray-300">
-              <button className="w-full px-4 py-3 font-medium text-left text-gray-700 transition-colors rounded-lg hover:bg-gray-200">
-                Settings
-              </button>
-              <button className="w-full px-4 py-3 font-medium text-left text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700">
+              <div className="flex items-center gap-3 px-4 py-3 bg-gray-200 rounded-lg">
+                <div className="flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full">
+                  <User size={16} />
+                </div>
+                <div className="text-sm">
+                  <div className="font-semibold text-gray-900">{user?.name || 'User'}</div>
+                  <div className="text-xs text-gray-500">{user?.email}</div>
+                </div>
+              </div>
+              <button 
+                onClick={handleLogout}
+                className="w-full px-4 py-3 font-medium text-left text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
+              >
                 Logout
               </button>
             </div>
