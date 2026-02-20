@@ -12,7 +12,7 @@ const generateToken = (userId, email) => {
 };
 
 // Register new user
-const register = async (supabase) => async (req, res) => {
+const register = (supabase) => async (req, res) => {
   try {
     const { email, password, name } = req.body;
 
@@ -82,7 +82,7 @@ const register = async (supabase) => async (req, res) => {
 };
 
 // Login user
-const login = async (supabase) => async (req, res) => {
+const login = (supabase) => async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -147,7 +147,7 @@ const login = async (supabase) => async (req, res) => {
 };
 
 // Get current user
-const getCurrentUser = async (supabase) => async (req, res) => {
+const getCurrentUser = (supabase) => async (req, res) => {
   try {
     const { data: user, error } = await supabase
       .from('users')
