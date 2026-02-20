@@ -21,7 +21,6 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // 🔥 Important - prevents page refresh
-    setError('');
 
     // Validation
     if (password.length < 6) {
@@ -42,16 +41,14 @@ function Register() {
       const result = await register(email, password, name);
       
       if (result.success) {
+        setError(''); // Clear error on success
         navigate('/');
       } else {
-        // Show server error message
-        console.log('Registration error:', result.error);
         setPassword(''); // Clear password fields on error
         setConfirmPassword('');
         setError(result.error || 'Registration failed');
       }
     } catch (err) {
-      console.error('Registration exception:', err);
       setPassword(''); // Clear password fields on error
       setConfirmPassword('');
       setError('Something went wrong. Please try again.');

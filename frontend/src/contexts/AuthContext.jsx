@@ -28,7 +28,6 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -48,7 +47,6 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: response.error || 'Login failed' };
     } catch (error) {
       // Network or other error
-      console.error('Login error:', error);
       return { 
         success: false, 
         error: error.response?.data?.error || error.message || 'Unable to connect to server'
@@ -68,7 +66,6 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: response.error || 'Registration failed' };
     } catch (error) {
       // Network or other error
-      console.error('Registration error:', error);
       return { 
         success: false, 
         error: error.response?.data?.error || error.message || 'Unable to connect to server'
