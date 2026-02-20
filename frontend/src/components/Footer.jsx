@@ -97,7 +97,7 @@ const Footer = () => {
               © {currentYear} MoAnalytics. All rights reserved.
             </p>
             <p className="flex items-center gap-1 text-sm text-gray-600">
-              Made with <Heart size={16} className="text-red-500 fill-current" /> by Your Team
+              Made with <Heart size={16} className="text-red-500 fill-current" /> MommentX
             </p>
           </div>
         </div>
