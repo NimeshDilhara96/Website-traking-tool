@@ -27,10 +27,14 @@ function Login() {
       if (result.success) {
         navigate('/');
       } else {
-        setError(result.error || 'Login failed');
+        // Clear password field on error
+        setPassword('');
+        setError(result.error || 'Invalid email or password. Please try again.');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      // Clear password field on error
+      setPassword('');
+      setError('Unable to connect to server. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -72,10 +76,13 @@ function Login() {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
+                autoFocus
                 className="w-full px-4 py-3 text-gray-900 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="you@example.com"
               />
@@ -88,10 +95,12 @@ function Login() {
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
                 className="w-full px-4 py-3 text-gray-900 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="••••••••"
               />

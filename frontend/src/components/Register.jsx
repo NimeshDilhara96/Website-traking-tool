@@ -31,6 +31,8 @@ function Register() {
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      setPassword('');
+      setConfirmPassword('');
       return;
     }
 
@@ -41,10 +43,16 @@ function Register() {
       if (result.success) {
         navigate('/');
       } else {
-        setError(result.error || 'Registration failed');
+        // Clear password fields on error
+        setPassword('');
+        setConfirmPassword('');
+        setError(result.error || 'Registration failed. Please try again.');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      // Clear password fields on error
+      setPassword('');
+      setConfirmPassword('');
+      setError('Unable to connect to server. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -86,9 +94,12 @@ function Register() {
               </label>
               <input
                 id="name"
+                name="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+                autoFocus
                 className="w-full px-4 py-3 text-gray-900 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="John Doe"
               />
@@ -101,10 +112,12 @@ function Register() {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
                 className="w-full px-4 py-3 text-gray-900 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="you@example.com"
               />
@@ -117,10 +130,12 @@ function Register() {
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="new-password"
                 className="w-full px-4 py-3 text-gray-900 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="••••••••"
               />
@@ -134,10 +149,12 @@ function Register() {
               </label>
               <input
                 id="confirmPassword"
+                name="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                autoComplete="new-password"
                 className="w-full px-4 py-3 text-gray-900 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="••••••••"
               />
