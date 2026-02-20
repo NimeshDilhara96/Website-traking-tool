@@ -49,6 +49,42 @@
   @apply bg-gray-300 rounded-md hover:bg-gray-400;
 }
 
+/* Skeleton shimmer animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+  background-size: 1000px 100%;
+  border-radius: 0.25rem;
+}
+
+/* Progress bar animation */
+@keyframes progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-progress {
+  animation: progress 1.5s ease-in-out infinite;
+  width: 40%;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+}
+
 /* Toast notification animation */
 @keyframes slide-up {
   from {

@@ -13,6 +13,7 @@ function Analytics({ website, onBack }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [activeUsers, setActiveUsers] = useState(null);
   const [activeUsersLoading, setActiveUsersLoading] = useState(false);
+  const [datePreset, setDatePreset] = useState('all');
 
   useEffect(() => {
     loadAnalytics();
@@ -40,7 +41,10 @@ function Analytics({ website, onBack }) {
 
   const loadAnalytics = async () => {
     try {
-      setLoading(true);
+      // Only show full loading on initial load
+      if (!analytics) {
+        setLoading(true);
+      }
       setError(null);
       const response = await analyticsAPI.getByWebsiteId(
         website.id,
@@ -129,7 +133,123 @@ function Analytics({ website, onBack }) {
 
   const getMaxValue = (data) => Math.max(...data.map(([, count]) => count), 1);
 
-  if (loading) {
+  // Date preset handler
+  const handleDatePreset = (preset) => {
+    setDatePreset(preset);
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    
+    switch (preset) {
+      case '24h':
+        const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        setDateRange({
+          start: yesterday.toISOString().split('T')[0],
+          end: today
+        });
+        break;
+      case '7d':
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        setDateRange({
+          start: sevenDaysAgo.toISOString().split('T')[0],
+          end: today
+        });
+        break;
+      case '30d':
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        setDateRange({
+          start: thirtyDaysAgo.toISOString().split('T')[0],
+          end: today
+        });
+        break;
+      case '90d':
+        const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        setDateRange({
+          start: ninetyDaysAgo.toISOString().split('T')[0],
+          end: today
+        });
+        break;
+      case 'all':
+      default:
+        setDateRange({ start: '', end: '' });
+        break;
+    }
+  };
+
+  // Skeleton loader components
+  const SkeletonCard = () => (
+    <div className="bg-white border border-gray-200 rounded-lg p-5">
+      <div className="flex items-center justify-between mb-3">
+        <div className="w-12 h-12 skeleton rounded-lg"></div>
+      </div>
+      <div className="h-8 skeleton rounded w-24 mb-2"></div>
+      <div className="h-4 skeleton rounded w-32"></div>
+    </div>
+  );
+
+  const SkeletonActiveUsers = () => (
+    <div className="bg-linear-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg shadow-lg p-6 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-green-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
+      <div className="relative">
+        <div className="flex items-center justify-between mb-2">
+          <div className="h-4 skeleton rounded w-20"></div>
+          <div className="h-3 skeleton rounded w-12"></div>
+        </div>
+        <div className="h-10 skeleton rounded w-16 mb-2"></div>
+        <div className="h-3 skeleton rounded w-32"></div>
+      </div>
+    </div>
+  );
+
+  const SkeletonChart = () => (
+    <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="h-6 skeleton rounded w-48 mb-6"></div>
+      <div className="flex items-end justify-between gap-2 h-48">
+        {[...Array(14)].map((_, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center gap-2">
+            <div className="w-full skeleton rounded-t-md" style={{ height: `${Math.random() * 80 + 20}%` }}></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const SkeletonTable = () => (
+    <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="h-6 skeleton rounded w-40 mb-4"></div>
+      <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-4">
+            <div className="h-12 skeleton rounded flex-1"></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const SkeletonActiveUsersList = () => (
+    <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-3 h-3 skeleton rounded-full"></div>
+          <div className="h-6 skeleton rounded w-48"></div>
+        </div>
+        <div className="h-4 skeleton rounded w-32"></div>
+      </div>
+      <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div className="w-8 h-8 skeleton rounded-full"></div>
+            <div className="flex-1 space-y-2">
+              <div className="h-4 skeleton rounded w-3/4"></div>
+              <div className="h-3 skeleton rounded w-1/2"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  if (loading && !analytics) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center gap-4">
@@ -165,7 +285,14 @@ function Analytics({ website, onBack }) {
   }
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto relative">
+      {/* Loading progress bar */}
+      {loading && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-blue-100 overflow-hidden z-50">
+          <div className="h-full bg-blue-600 animate-progress"></div>
+        </div>
+      )}
+      
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Tracking Code Section */}
         <div className="bg-linear-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-5">
@@ -208,32 +335,73 @@ function Analytics({ website, onBack }) {
         </div>
 
         {/* Date Filter */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex flex-wrap items-center gap-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
+          {/* Quick Date Presets */}
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <label className="text-sm font-medium text-gray-700">Date Range:</label>
+              <label className="text-sm font-medium text-gray-700">Quick Filter:</label>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { key: '24h', label: 'Last 24 Hours' },
+                { key: '7d', label: 'Last 7 Days' },
+                { key: '30d', label: 'Last 30 Days' },
+                { key: '90d', label: 'Last 90 Days' },
+                { key: 'all', label: 'All Time' }
+              ].map(preset => (
+                <button
+                  key={preset.key}
+                  onClick={() => handleDatePreset(preset.key)}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                    datePreset === preset.key
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Date Range */}
+          <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-gray-200">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">Custom Range:</label>
             </div>
             <input
               type="date"
               value={dateRange.start}
-              onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+              onChange={(e) => {
+                setDateRange({ ...dateRange, start: e.target.value });
+                setDatePreset('custom');
+              }}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
             <span className="text-gray-400">to</span>
             <input
               type="date"
               value={dateRange.end}
-              onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+              onChange={(e) => {
+                setDateRange({ ...dateRange, end: e.target.value });
+                setDatePreset('custom');
+              }}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
-            {(dateRange.start || dateRange.end) && (
+            {datePreset === 'custom' && (dateRange.start || dateRange.end) && (
               <button
-                onClick={() => setDateRange({ start: '', end: '' })}
-                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => {
+                  setDateRange({ start: '', end: '' });
+                  setDatePreset('all');
+                }}
+                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
               >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
                 Clear
               </button>
             )}
@@ -249,7 +417,7 @@ function Analytics({ website, onBack }) {
                 disabled={loading}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm flex items-center gap-2"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 {loading ? 'Refreshing...' : 'Refresh Now'}
@@ -281,21 +449,55 @@ function Analytics({ website, onBack }) {
 
             {lastUpdated && (
               <div className="text-sm text-gray-600 flex items-center gap-2">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={`w-4 h-4 text-gray-400 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Last updated: {lastUpdated.toLocaleTimeString()}
+                {loading ? 'Updating...' : `Last updated: ${lastUpdated.toLocaleTimeString()}`}
               </div>
             )}
           </div>
         </div>
 
         {/* Key Metrics Grid */}
-        {analytics && (
+        {loading && !analytics ? (
+          // Skeleton loaders for initial load
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <SkeletonActiveUsers />
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          </>
+        ) : analytics ? (
+          <>
+            {/* Stats Cards with loading overlay */}
+            {loading ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <SkeletonActiveUsers />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                </div>
+              </>
+            ) : (
+              <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Active Users - Real-time */}
-              <div className="bg-linear-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg shadow-lg p-6 relative overflow-hidden">
+              <div className={`bg-linear-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg shadow-lg p-6 relative overflow-hidden transition-all duration-300 ${activeUsersLoading ? 'ring-2 ring-green-300' : ''}`}>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-green-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
                 <div className="relative">
                   <div className="flex items-center justify-between mb-2">
@@ -369,9 +571,13 @@ function Analytics({ website, onBack }) {
                 color="orange"
               />
             </div>
+            </>
+            )}
 
             {/* Timeline Chart */}
-            {analytics.pageviews && analytics.pageviews.length > 0 && (
+            {loading ? (
+              <SkeletonChart />
+            ) : analytics.pageviews && analytics.pageviews.length > 0 && (
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Page Views Over Time</h3>
                 <div className="flex items-end justify-between gap-2 h-48 border-b border-l border-gray-200 pl-2 pb-2">
@@ -399,8 +605,10 @@ function Analytics({ website, onBack }) {
             )}
 
             {/* Active Users Details */}
-            {activeUsers && activeUsers.count > 0 && (
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
+            {loading && activeUsers && activeUsers.count > 0 ? (
+              <SkeletonActiveUsersList />
+            ) : activeUsers && activeUsers.count > 0 && (
+              <div className="bg-white border border-gray-200 rounded-lg p-6 transition-opacity duration-300">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
@@ -435,6 +643,9 @@ function Analytics({ website, onBack }) {
             )}
 
             {/* Tabs */}
+            {loading ? (
+              <SkeletonTable />
+            ) : (
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
               <div className="border-b border-gray-200">
                 <nav className="flex -mb-px">
@@ -468,9 +679,12 @@ function Analytics({ website, onBack }) {
                 {activeTab === 'technology' && <TechnologyTab analytics={analytics} {...{ groupByDevice, groupByBrowser, groupByOS }} />}
               </div>
             </div>
+            )}
 
             {/* Recent Activity */}
-            {analytics.pageviews && analytics.pageviews.length > 0 && (
+            {loading ? (
+              <SkeletonTable />
+            ) : analytics.pageviews && analytics.pageviews.length > 0 && (
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Page Views</h3>
                 <div className="overflow-x-auto">
@@ -518,7 +732,7 @@ function Analytics({ website, onBack }) {
               </div>
             )}
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );
