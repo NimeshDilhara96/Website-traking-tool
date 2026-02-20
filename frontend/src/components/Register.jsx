@@ -20,7 +20,7 @@ function Register() {
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 🔥 Important - prevents page refresh
     setError('');
 
     // Validation
@@ -40,19 +40,21 @@ function Register() {
 
     try {
       const result = await register(email, password, name);
+      
       if (result.success) {
         navigate('/');
       } else {
-        // Clear password fields on error
-        setPassword('');
+        // Show server error message
+        console.log('Registration error:', result.error);
+        setPassword(''); // Clear password fields on error
         setConfirmPassword('');
-        setError(result.error || 'Registration failed. Please try again.');
+        setError(result.error || 'Registration failed');
       }
     } catch (err) {
-      // Clear password fields on error
-      setPassword('');
+      console.error('Registration exception:', err);
+      setPassword(''); // Clear password fields on error
       setConfirmPassword('');
-      setError('Unable to connect to server. Please check your connection and try again.');
+      setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }

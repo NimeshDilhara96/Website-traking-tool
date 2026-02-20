@@ -18,23 +18,25 @@ function Login() {
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 🔥 Important - prevents page refresh
     setError('');
     setLoading(true);
 
     try {
       const result = await login(email, password);
+      
       if (result.success) {
         navigate('/');
       } else {
-        // Clear password field on error
-        setPassword('');
-        setError(result.error || 'Invalid email or password. Please try again.');
+        // Show server error message
+        console.log('Login error:', result.error);
+        setPassword(''); // Clear password field on error
+        setError(result.error || 'Invalid credentials');
       }
     } catch (err) {
-      // Clear password field on error
-      setPassword('');
-      setError('Unable to connect to server. Please check your connection and try again.');
+      console.error('Login exception:', err);
+      setPassword(''); // Clear password field on error
+      setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
