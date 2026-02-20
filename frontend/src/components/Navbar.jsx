@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Activity, BarChart3, Globe, User } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, User } from 'lucide-react';
 import WebsiteList from './WebsiteList';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = ({ children, selectedWebsite, onSelectWebsite }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -19,17 +18,6 @@ const Navbar = ({ children, selectedWebsite, onSelectWebsite }) => {
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
-
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
-
-  const navLinks = [
-    { name: 'Dashboard', path: '/', icon: <Activity size={20} /> },
-    { name: 'Analytics', path: '/analytics', icon: <BarChart3 size={20} /> },
-    { name: 'Websites', path: '/websites', icon: <Globe size={20} /> },
-    { name: 'Profile', path: '/profile', icon: <User size={20} /> },
-  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -57,24 +45,6 @@ const Navbar = ({ children, selectedWebsite, onSelectWebsite }) => {
                   <p className="text-xs text-gray-500">Website Dashboard</p>
                 </div>
               </Link>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="items-center hidden space-x-1 md:flex">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                    isActive(link.path)
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  {link.icon}
-                  <span className="font-medium">{link.name}</span>
-                </Link>
-              ))}
             </div>
 
             {/* User Profile & Logout (Desktop) */}
@@ -116,24 +86,8 @@ const Navbar = ({ children, selectedWebsite, onSelectWebsite }) => {
           }`}
         >
           <div className="px-4 pt-2 pb-4 space-y-2 bg-gray-50">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={toggleMenu}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  isActive(link.path)
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {link.icon}
-                <span className="font-medium">{link.name}</span>
-              </Link>
-            ))}
-            
             {/* Mobile User Actions */}
-            <div className="pt-4 mt-4 space-y-2 border-t border-gray-300">
+            <div className="pt-2 space-y-2">
               <div className="flex items-center gap-3 px-4 py-3 bg-gray-200 rounded-lg">
                 <div className="flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full">
                   <User size={16} />
