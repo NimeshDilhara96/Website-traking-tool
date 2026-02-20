@@ -79,7 +79,7 @@ function Analytics({ website, onBack }) {
     navigator.clipboard.writeText(code);
     // Show toast instead of alert
     const toast = document.createElement('div');
-    toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-up';
+    toast.className = 'fixed z-50 px-6 py-3 text-white bg-green-500 rounded-lg shadow-lg bottom-4 right-4 animate-slide-up';
     toast.textContent = '✓ Tracking code copied!';
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
@@ -177,35 +177,35 @@ function Analytics({ website, onBack }) {
 
   // Skeleton loader components
   const SkeletonCard = () => (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
+    <div className="p-5 bg-white border border-gray-200 rounded-lg">
       <div className="flex items-center justify-between mb-3">
-        <div className="w-12 h-12 skeleton rounded-lg"></div>
+        <div className="w-12 h-12 rounded-lg skeleton"></div>
       </div>
-      <div className="h-8 skeleton rounded w-24 mb-2"></div>
-      <div className="h-4 skeleton rounded w-32"></div>
+      <div className="w-24 h-8 mb-2 rounded skeleton"></div>
+      <div className="w-32 h-4 rounded skeleton"></div>
     </div>
   );
 
   const SkeletonActiveUsers = () => (
-    <div className="bg-linear-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg shadow-lg p-6 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-green-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
+    <div className="relative p-4 overflow-hidden border-2 border-green-200 rounded-lg shadow-lg bg-linear-to-br from-green-50 to-emerald-50 sm:p-6">
+      <div className="absolute top-0 right-0 w-32 h-32 -mt-16 -mr-16 bg-green-100 rounded-full opacity-50"></div>
       <div className="relative">
         <div className="flex items-center justify-between mb-2">
-          <div className="h-4 skeleton rounded w-20"></div>
-          <div className="h-3 skeleton rounded w-12"></div>
+          <div className="w-20 h-4 rounded skeleton"></div>
+          <div className="w-12 h-3 rounded skeleton"></div>
         </div>
-        <div className="h-10 skeleton rounded w-16 mb-2"></div>
-        <div className="h-3 skeleton rounded w-32"></div>
+        <div className="w-16 h-10 mb-2 rounded skeleton"></div>
+        <div className="w-32 h-3 rounded skeleton"></div>
       </div>
     </div>
   );
 
   const SkeletonChart = () => (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
-      <div className="h-6 skeleton rounded w-48 mb-6"></div>
-      <div className="flex items-end justify-between gap-2 h-48">
+    <div className="p-6 bg-white border border-gray-200 rounded-lg">
+      <div className="w-48 h-6 mb-6 rounded skeleton"></div>
+      <div className="flex items-end justify-between h-48 gap-2">
         {[...Array(14)].map((_, i) => (
-          <div key={i} className="flex-1 flex flex-col items-center gap-2">
+          <div key={i} className="flex flex-col items-center flex-1 gap-2">
             <div className="w-full skeleton rounded-t-md" style={{ height: `${Math.random() * 80 + 20}%` }}></div>
           </div>
         ))}
@@ -214,12 +214,12 @@ function Analytics({ website, onBack }) {
   );
 
   const SkeletonTable = () => (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
-      <div className="h-6 skeleton rounded w-40 mb-4"></div>
+    <div className="p-6 bg-white border border-gray-200 rounded-lg">
+      <div className="w-40 h-6 mb-4 rounded skeleton"></div>
       <div className="space-y-3">
         {[...Array(5)].map((_, i) => (
           <div key={i} className="flex items-center gap-4">
-            <div className="h-12 skeleton rounded flex-1"></div>
+            <div className="flex-1 h-12 rounded skeleton"></div>
           </div>
         ))}
       </div>
@@ -227,21 +227,21 @@ function Analytics({ website, onBack }) {
   );
 
   const SkeletonActiveUsersList = () => (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <div className="p-6 bg-white border border-gray-200 rounded-lg">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-3 h-3 skeleton rounded-full"></div>
-          <div className="h-6 skeleton rounded w-48"></div>
+          <div className="w-3 h-3 rounded-full skeleton"></div>
+          <div className="w-48 h-6 rounded skeleton"></div>
         </div>
-        <div className="h-4 skeleton rounded w-32"></div>
+        <div className="w-32 h-4 rounded skeleton"></div>
       </div>
       <div className="space-y-3">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-            <div className="w-8 h-8 skeleton rounded-full"></div>
+          <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+            <div className="w-8 h-8 rounded-full skeleton"></div>
             <div className="flex-1 space-y-2">
-              <div className="h-4 skeleton rounded w-3/4"></div>
-              <div className="h-3 skeleton rounded w-1/2"></div>
+              <div className="w-3/4 h-4 rounded skeleton"></div>
+              <div className="w-1/2 h-3 rounded skeleton"></div>
             </div>
           </div>
         ))}
@@ -253,7 +253,7 @@ function Analytics({ website, onBack }) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
           <p className="text-gray-600">Loading analytics...</p>
         </div>
       </div>
@@ -263,17 +263,17 @@ function Analytics({ website, onBack }) {
   if (error) {
     return (
       <div className="p-8">
-        <div className="max-w-2xl mx-auto bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="max-w-2xl p-6 mx-auto border border-red-200 rounded-lg bg-red-50">
           <div className="flex items-start gap-3">
             <svg className="w-6 h-6 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-red-900 mb-2">Error Loading Analytics</h3>
+              <h3 className="mb-2 text-lg font-semibold text-red-900">Error Loading Analytics</h3>
               <p className="text-red-700">{error}</p>
               <button 
                 onClick={loadAnalytics}
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                className="px-4 py-2 mt-4 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
               >
                 Retry
               </button>
@@ -285,49 +285,49 @@ function Analytics({ website, onBack }) {
   }
 
   return (
-    <div className="h-full overflow-y-auto relative">
+    <div className="relative h-full overflow-y-auto">
       {/* Loading progress bar */}
       {loading && (
-        <div className="absolute top-0 left-0 right-0 h-1 bg-blue-100 overflow-hidden z-50">
+        <div className="absolute top-0 left-0 right-0 z-50 h-1 overflow-hidden bg-blue-100">
           <div className="h-full bg-blue-600 animate-progress"></div>
         </div>
       )}
       
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
+      <div className="p-3 mx-auto space-y-4 max-w-7xl sm:p-4 md:p-6 sm:space-y-6">
         {/* Tracking Code Section */}
-        <div className="bg-linear-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-5">
-          <div className="flex items-center justify-between mb-3">
+        <div className="p-4 border border-blue-200 rounded-lg bg-linear-to-r from-blue-50 to-purple-50 sm:p-5">
+          <div className="flex flex-col items-start justify-between gap-3 mb-3 sm:flex-row sm:items-center">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-500 rounded-lg shrink-0">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Installation Code</h3>
-                <p className="text-sm text-gray-600">Add this code to your website</p>
+                <h3 className="text-sm font-semibold text-gray-900 sm:text-base">Installation Code</h3>
+                <p className="text-xs text-gray-600 sm:text-sm">Add this code to your website</p>
               </div>
             </div>
             <button
               onClick={() => setShowTrackingCode(!showTrackingCode)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+              className="w-full px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-600 rounded-lg sm:w-auto hover:bg-blue-700"
             >
               {showTrackingCode ? 'Hide Code' : 'Show Code'}
             </button>
           </div>
 
           {showTrackingCode && (
-            <div className="bg-gray-900 rounded-lg p-4 relative">
+            <div className="relative p-3 bg-gray-900 rounded-lg sm:p-4">
               <button
                 onClick={copyTrackingCode}
-                className="absolute top-3 right-3 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-md transition-colors flex items-center gap-2"
+                className="absolute top-2 right-2 sm:top-3 sm:right-3 px-2 sm:px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs sm:text-sm rounded-md transition-colors flex items-center gap-1 sm:gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
                 Copy
               </button>
-              <pre className="text-sm text-gray-300 overflow-x-auto pr-24">
+              <pre className="pr-16 overflow-x-auto text-xs text-gray-300 sm:text-sm sm:pr-24">
                 <code>{getTrackingCode(website.id)}</code>
               </pre>
             </div>
@@ -335,16 +335,16 @@ function Analytics({ website, onBack }) {
         </div>
 
         {/* Date Filter */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
+        <div className="p-3 space-y-3 bg-white border border-gray-200 rounded-lg sm:p-4 sm:space-y-4">
           {/* Quick Date Presets */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div className="flex items-center w-full gap-2 sm:w-auto">
+              <svg className="w-4 h-4 text-gray-400 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <label className="text-sm font-medium text-gray-700">Quick Filter:</label>
+              <label className="text-xs font-medium text-gray-700 sm:text-sm">Quick Filter:</label>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap w-full gap-2 sm:w-auto">
               {[
                 { key: '24h', label: 'Last 24 Hours' },
                 { key: '7d', label: 'Last 7 Days' },
@@ -355,7 +355,7 @@ function Analytics({ website, onBack }) {
                 <button
                   key={preset.key}
                   onClick={() => handleDatePreset(preset.key)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all ${
                     datePreset === preset.key
                       ? 'bg-blue-600 text-white shadow-md'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -368,9 +368,9 @@ function Analytics({ website, onBack }) {
           </div>
 
           {/* Custom Date Range */}
-          <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-gray-200">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">Custom Range:</label>
+          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-gray-200 sm:gap-4 sm:pt-4">
+            <div className="flex items-center w-full gap-2 sm:w-auto">
+              <label className="text-xs font-medium text-gray-700 sm:text-sm">Custom Range:</label>
             </div>
             <input
               type="date"
@@ -379,9 +379,9 @@ function Analytics({ website, onBack }) {
                 setDateRange({ ...dateRange, start: e.target.value });
                 setDatePreset('custom');
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="flex-1 sm:flex-none px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm"
             />
-            <span className="text-gray-400">to</span>
+            <span className="text-sm text-gray-400">to</span>
             <input
               type="date"
               value={dateRange.end}
@@ -389,7 +389,7 @@ function Analytics({ website, onBack }) {
                 setDateRange({ ...dateRange, end: e.target.value });
                 setDatePreset('custom');
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="flex-1 sm:flex-none px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm"
             />
             {datePreset === 'custom' && (dateRange.start || dateRange.end) && (
               <button
@@ -397,7 +397,7 @@ function Analytics({ website, onBack }) {
                   setDateRange({ start: '', end: '' });
                   setDatePreset('all');
                 }}
-                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
+                className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -409,13 +409,13 @@ function Analytics({ website, onBack }) {
         </div>
 
         {/* Auto-Refresh Controls */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-4">
+        <div className="p-3 bg-white border border-gray-200 rounded-lg sm:p-4">
+          <div className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               <button
                 onClick={loadAnalytics}
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm flex items-center gap-2"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-xs sm:text-sm flex items-center gap-2"
               >
                 <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -423,21 +423,21 @@ function Analytics({ website, onBack }) {
                 {loading ? 'Refreshing...' : 'Refresh Now'}
               </button>
 
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
                 <input
                   type="checkbox"
                   checked={autoRefresh}
                   onChange={(e) => setAutoRefresh(e.target.checked)}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
-                <span className="text-sm font-medium text-gray-700">Auto-refresh</span>
+                <span className="text-xs font-medium text-gray-700 sm:text-sm">Auto-refresh</span>
               </label>
 
               <select
                 value={refreshInterval}
                 onChange={(e) => setRefreshInterval(Number(e.target.value))}
                 disabled={!autoRefresh}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value={10}>Every 10 seconds</option>
                 <option value={30}>Every 30 seconds</option>
@@ -448,7 +448,7 @@ function Analytics({ website, onBack }) {
             </div>
 
             {lastUpdated && (
-              <div className="text-sm text-gray-600 flex items-center gap-2">
+              <div className="flex items-center gap-2 text-xs text-gray-600 sm:text-sm">
                 <svg className={`w-4 h-4 text-gray-400 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -462,13 +462,13 @@ function Analytics({ website, onBack }) {
         {loading && !analytics ? (
           // Skeleton loaders for initial load
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
               <SkeletonActiveUsers />
               <SkeletonCard />
               <SkeletonCard />
               <SkeletonCard />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               <SkeletonCard />
               <SkeletonCard />
               <SkeletonCard />
@@ -479,13 +479,13 @@ function Analytics({ website, onBack }) {
             {/* Stats Cards with loading overlay */}
             {loading ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                   <SkeletonActiveUsers />
                   <SkeletonCard />
                   <SkeletonCard />
                   <SkeletonCard />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   <SkeletonCard />
                   <SkeletonCard />
                   <SkeletonCard />
@@ -495,27 +495,27 @@ function Analytics({ website, onBack }) {
               </>
             ) : (
               <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
               {/* Active Users - Real-time */}
-              <div className={`bg-linear-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg shadow-lg p-6 relative overflow-hidden transition-all duration-300 ${activeUsersLoading ? 'ring-2 ring-green-300' : ''}`}>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-green-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
+              <div className={`bg-linear-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg shadow-lg p-4 sm:p-6 relative overflow-hidden transition-all duration-300 ${activeUsersLoading ? 'ring-2 ring-green-300' : ''}`}>
+                <div className="absolute top-0 right-0 w-20 h-20 -mt-10 -mr-10 bg-green-100 rounded-full opacity-50 sm:w-32 sm:h-32 sm:-mr-16 sm:-mt-16"></div>
                 <div className="relative">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-green-700 uppercase tracking-wide">Active Now</h3>
+                    <h3 className="text-xs font-medium tracking-wide text-green-700 uppercase sm:text-sm">Active Now</h3>
                     <div className="flex items-center gap-1">
                       <div className={`w-2 h-2 rounded-full ${activeUsers?.count > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}></div>
                       <span className="text-xs text-green-600">Live</span>
                     </div>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <p className="text-4xl font-bold text-green-600">
+                    <p className="text-3xl font-bold text-green-600 sm:text-4xl">
                       {activeUsersLoading ? '...' : (activeUsers?.count || 0)}
                     </p>
-                    <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-green-500 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
-                  <p className="text-xs text-green-600 mt-1">Users online right now</p>
+                  <p className="mt-1 text-xs text-green-600">Users online right now</p>
                 </div>
               </div>
 
@@ -539,7 +539,7 @@ function Analytics({ website, onBack }) {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               <StatCard
                 title="Avg Session"
                 value={formatDuration(analytics.avg_session_duration || 0)}
@@ -578,25 +578,25 @@ function Analytics({ website, onBack }) {
             {loading ? (
               <SkeletonChart />
             ) : analytics.pageviews && analytics.pageviews.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Page Views Over Time</h3>
-                <div className="flex items-end justify-between gap-2 h-48 border-b border-l border-gray-200 pl-2 pb-2">
+              <div className="p-4 bg-white border border-gray-200 rounded-lg sm:p-6">
+                <h3 className="mb-4 text-base font-semibold text-gray-900 sm:text-lg sm:mb-6">Page Views Over Time</h3>
+                <div className="flex items-end justify-between h-48 gap-2 pb-2 pl-2 border-b border-l border-gray-200">
                   {groupByDay(analytics.pageviews).map(([date, count]) => {
                     const maxCount = getMaxValue(groupByDay(analytics.pageviews));
                     const height = (count / maxCount) * 100;
                     return (
-                      <div key={date} className="flex-1 flex flex-col items-center gap-2">
-                        <div className="w-full group relative">
+                      <div key={date} className="flex flex-col items-center flex-1 gap-2">
+                        <div className="relative w-full group">
                           <div 
-                            className="w-full bg-linear-to-t from-blue-500 to-blue-400 rounded-t-md hover:from-blue-600 hover:to-blue-500 transition-all cursor-pointer"
+                            className="w-full transition-all cursor-pointer bg-linear-to-t from-blue-500 to-blue-400 rounded-t-md hover:from-blue-600 hover:to-blue-500"
                             style={{ height: `${Math.max(height, 5)}%` }}
                           >
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                            <div className="absolute px-2 py-1 text-xs text-white transition-opacity transform -translate-x-1/2 bg-gray-900 rounded opacity-0 group-hover:opacity-100 -top-8 left-1/2 whitespace-nowrap">
                               {count} views
                             </div>
                           </div>
                         </div>
-                        <span className="text-xs text-gray-500 -rotate-45 origin-top-left mt-4">{date.split('/').slice(0, 2).join('/')}</span>
+                        <span className="mt-4 text-xs text-gray-500 origin-top-left -rotate-45">{date.split('/').slice(0, 2).join('/')}</span>
                       </div>
                     );
                   })}
@@ -608,20 +608,20 @@ function Analytics({ website, onBack }) {
             {loading && activeUsers && activeUsers.count > 0 ? (
               <SkeletonActiveUsersList />
             ) : activeUsers && activeUsers.count > 0 && (
-              <div className="bg-white border border-gray-200 rounded-lg p-6 transition-opacity duration-300">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-                    <h3 className="text-lg font-semibold text-gray-900">Active Users Right Now</h3>
-                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">{activeUsers.count}</span>
+              <div className="p-4 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg sm:p-6">
+                <div className="flex flex-col items-start justify-between gap-2 mb-4 sm:flex-row sm:items-center sm:gap-0">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <h3 className="text-base font-semibold text-gray-900 sm:text-lg">Active Users Right Now</h3>
+                    <span className="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">{activeUsers.count}</span>
                   </div>
-                  <span className="text-sm text-gray-500">Updates every 10 seconds</span>
+                  <span className="text-xs text-gray-500 sm:text-sm">Updates every 10 seconds</span>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {activeUsers.users.slice(0, 10).map((user, index) => (
-                    <div key={user.session_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                    <div key={user.session_id} className="flex flex-col items-start justify-between gap-2 p-3 transition-colors rounded-lg sm:flex-row sm:items-center bg-gray-50 hover:bg-gray-100">
+                      <div className="flex items-center flex-1 gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 text-xs font-semibold text-white bg-green-500 rounded-full">
                           {index + 1}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -646,9 +646,9 @@ function Analytics({ website, onBack }) {
             {loading ? (
               <SkeletonTable />
             ) : (
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="border-b border-gray-200">
-                <nav className="flex -mb-px">
+            <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
+              <div className="overflow-x-auto border-b border-gray-200">
+                <nav className="flex -mb-px min-w-max sm:min-w-0">
                   {[
                     { id: 'overview', label: 'Overview' },
                     { id: 'pages', label: 'Pages' },
@@ -659,7 +659,7 @@ function Analytics({ website, onBack }) {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      className={`px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                         activeTab === tab.id
                           ? 'border-blue-500 text-blue-600'
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -671,7 +671,7 @@ function Analytics({ website, onBack }) {
                 </nav>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {activeTab === 'overview' && <OverviewTab analytics={analytics} {...{ groupByUrl, groupByReferrer, groupByCountry }} />}
                 {activeTab === 'pages' && <PagesTab analytics={analytics} groupByUrl={groupByUrl} />}
                 {activeTab === 'sources' && <SourcesTab analytics={analytics} {...{ groupByReferrer, groupByUTMSource }} />}
@@ -685,43 +685,43 @@ function Analytics({ website, onBack }) {
             {loading ? (
               <SkeletonTable />
             ) : analytics.pageviews && analytics.pageviews.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Page Views</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
+              <div className="p-4 bg-white border border-gray-200 rounded-lg sm:p-6">
+                <h3 className="mb-4 text-base font-semibold text-gray-900 sm:text-lg">Recent Page Views</h3>
+                <div className="-mx-4 overflow-x-auto sm:mx-0">
+                  <table className="w-full min-w-max">
                     <thead>
                       <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Time</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Page</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Source</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Location</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Device</th>
-                        <th className="text-center py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
+                        <th className="px-2 py-2 text-xs font-semibold text-left text-gray-600 sm:py-3 sm:px-4 sm:text-sm">Time</th>
+                        <th className="px-2 py-2 text-xs font-semibold text-left text-gray-600 sm:py-3 sm:px-4 sm:text-sm">Page</th>
+                        <th className="px-2 py-2 text-xs font-semibold text-left text-gray-600 sm:py-3 sm:px-4 sm:text-sm">Source</th>
+                        <th className="px-2 py-2 text-xs font-semibold text-left text-gray-600 sm:py-3 sm:px-4 sm:text-sm">Location</th>
+                        <th className="px-2 py-2 text-xs font-semibold text-left text-gray-600 sm:py-3 sm:px-4 sm:text-sm">Device</th>
+                        <th className="px-2 py-2 text-xs font-semibold text-center text-gray-600 sm:py-3 sm:px-4 sm:text-sm">Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {analytics.pageviews.slice(0, 15).map((pv, index) => (
-                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                          <td className="py-3 px-4 text-sm text-gray-600 whitespace-nowrap">
+                        <tr key={index} className="transition-colors border-b border-gray-100 hover:bg-gray-50">
+                          <td className="px-2 py-2 text-xs text-gray-600 sm:py-3 sm:px-4 sm:text-sm whitespace-nowrap">
                             {new Date(pv.timestamp).toLocaleString()}
                           </td>
-                          <td className="py-3 px-4 text-sm text-gray-900 max-w-xs truncate" title={pv.url}>
+                          <td className="max-w-xs px-2 py-2 text-xs text-gray-900 truncate sm:py-3 sm:px-4 sm:text-sm" title={pv.url}>
                             {pv.url}
                           </td>
-                          <td className="py-3 px-4 text-sm text-gray-600">
+                          <td className="px-2 py-2 text-xs text-gray-600 sm:py-3 sm:px-4 sm:text-sm">
                             {pv.referrer || 'Direct'}
                           </td>
-                          <td className="py-3 px-4 text-sm text-gray-600">
+                          <td className="px-2 py-2 text-xs text-gray-600 sm:py-3 sm:px-4 sm:text-sm">
                             {pv.country || 'Unknown'}
                           </td>
-                          <td className="py-3 px-4 text-sm text-gray-600 capitalize">
+                          <td className="px-2 py-2 text-xs text-gray-600 capitalize sm:py-3 sm:px-4 sm:text-sm">
                             {pv.device_type || 'Unknown'}
                           </td>
-                          <td className="py-3 px-4 text-center">
+                          <td className="px-2 py-2 text-center sm:py-3 sm:px-4">
                             {pv.is_new_visitor ? (
-                              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">New</span>
+                              <span className="px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">New</span>
                             ) : (
-                              <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">Return</span>
+                              <span className="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">Return</span>
                             )}
                           </td>
                         </tr>
@@ -752,14 +752,14 @@ function StatCard({ title, value, icon, color }) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+    <div className="p-4 transition-shadow bg-white border border-gray-200 rounded-lg sm:p-5 hover:shadow-md">
       <div className="flex items-center justify-between mb-3">
-        <div className={`w-12 h-12 bg-linear-to-br ${colors[color]} rounded-lg flex items-center justify-center text-white shadow-lg`}>
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-linear-to-br ${colors[color]} rounded-lg flex items-center justify-center text-white shadow-lg`}>
           {icon}
         </div>
       </div>
-      <p className="text-2xl font-bold text-gray-900 mb-1">{value}</p>
-      <p className="text-sm text-gray-500 font-medium">{title}</p>
+      <p className="mb-1 text-xl font-bold text-gray-900 sm:text-2xl">{value}</p>
+      <p className="text-xs font-medium text-gray-500 sm:text-sm">{title}</p>
     </div>
   );
 }
@@ -767,7 +767,7 @@ function StatCard({ title, value, icon, color }) {
 // Tab Components
 function OverviewTab({ analytics, groupByUrl, groupByReferrer, groupByCountry }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 sm:gap-6">
       <DataTable
         title="Top Pages"
         data={groupByUrl(analytics.pageviews || [])}
@@ -833,7 +833,7 @@ function LocationTab({ analytics, groupByCountry }) {
 
 function TechnologyTab({ analytics, groupByDevice, groupByBrowser, groupByOS }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 sm:gap-6">
       <DataTable
         title="Devices"
         data={groupByDevice(analytics.pageviews || [])}
@@ -857,14 +857,14 @@ function TechnologyTab({ analytics, groupByDevice, groupByBrowser, groupByOS }) 
 function DataTable({ title, data, columns, fullWidth }) {
   return (
     <div className={fullWidth ? 'col-span-full' : ''}>
-      <h4 className="text-base font-semibold text-gray-900 mb-4">{title}</h4>
+      <h4 className="mb-3 text-sm font-semibold text-gray-900 sm:text-base sm:mb-4">{title}</h4>
       {data.length > 0 ? (
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <table className="w-full">
+        <div className="overflow-hidden overflow-x-auto border border-gray-200 rounded-lg">
+          <table className="w-full min-w-full">
             <thead className="bg-gray-50">
               <tr>
                 {columns.map((col, idx) => (
-                  <th key={idx} className={`py-3 px-4 text-left text-xs font-semibold text-gray-600 uppercase ${idx === columns.length - 1 ? 'text-right' : ''}`}>
+                  <th key={idx} className={`py-2 sm:py-3 px-2 sm:px-4 text-left text-xs font-semibold text-gray-600 uppercase ${idx === columns.length - 1 ? 'text-right' : ''}`}>
                     {col}
                   </th>
                 ))}
@@ -872,11 +872,11 @@ function DataTable({ title, data, columns, fullWidth }) {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {data.map(([key, value], index) => (
-                <tr key={index} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-3 px-4 text-sm text-gray-900 max-w-xs truncate" title={key}>
+                <tr key={index} className="transition-colors hover:bg-gray-50">
+                  <td className="max-w-xs px-2 py-2 text-xs text-gray-900 truncate sm:py-3 sm:px-4 sm:text-sm" title={key}>
                     {key}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-600 text-right font-semibold">
+                  <td className="px-2 py-2 text-xs font-semibold text-right text-gray-600 sm:py-3 sm:px-4 sm:text-sm">
                     {value.toLocaleString()}
                   </td>
                 </tr>
@@ -885,7 +885,7 @@ function DataTable({ title, data, columns, fullWidth }) {
           </table>
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-400">
+        <div className="py-8 text-center text-gray-400">
           <p>No data available</p>
         </div>
       )}
